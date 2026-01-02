@@ -1,7 +1,6 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import { Agent, getAgentByName } from "agents";
-import { WorkerEntrypoint } from "cloudflare:workers";
 import OpenAI from "openai";
 
 interface Env {
@@ -16,7 +15,7 @@ interface GameState {
   gameOver: boolean;
 }
 
-class TicTacToeAgent extends Agent<Env, GameState> {
+export class TicTacToeAgent extends Agent<Env, GameState> {
   initialState: GameState = {
     board: Array(9).fill(null),
     currentPlayer: "X",
@@ -244,8 +243,8 @@ Response format: Just the number, nothing else.`;
   }
 }
 
-export class TicTacToeWorker extends WorkerEntrypoint<Env> {
-  async fetch(request: Request): Promise<Response> {
+export default {
+  async fetch(request: Request, env: Env) {
     const url = new URL(request.url);
 
     // WebSocket upgrade for agent connection
@@ -255,7 +254,7 @@ export class TicTacToeWorker extends WorkerEntrypoint<Env> {
         return new Response("Expected websocket", { status: 400 });
       }
 
-      const stub = await getAgentByName(this.env.TIC_TAC_TOE_AGENT, "game");
+      const stub = await getAgentByName(env.TIC_TAC_TOE_AGENT, "game");
 
       return stub.fetch(request);
     }
@@ -268,8 +267,8 @@ export class TicTacToeWorker extends WorkerEntrypoint<Env> {
     }
 
     return new Response("Not found", { status: 404 });
-  }
-}
+  },
+};
 
 const HTML_CONTENT = `<!DOCTYPE html>
 <html lang="en">
@@ -555,7 +554,3 @@ const HTML_CONTENT = `<!DOCTYPE html>
     </script>
 </body>
 </html>`;
-
-export { TicTacToeAgent };
-
-export default TicTacToeWorker;
