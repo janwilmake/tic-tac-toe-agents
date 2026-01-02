@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "agents": "^0.3.3",
+    "openai": "^6.15.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260101.0"
+  }
+}

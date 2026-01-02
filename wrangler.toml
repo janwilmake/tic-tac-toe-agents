@@ -1,0 +1,14 @@
+name = "tic-tac-toe-agent2"
+main = "worker.ts"
+compatibility_date = "2026-01-01"
+compatibility_flags = [ "nodejs_compat" ]
+[[durable_objects.bindings]]
+name = "TIC_TAC_TOE_AGENT"
+class_name = "TicTacToeAgent"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TicTacToeAgent"]
+
+# Add your OpenAI API key as a secret:
+# wrangler secret put OPENAI_API_KEY
