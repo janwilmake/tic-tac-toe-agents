@@ -1,12 +1,11 @@
 /// <reference types="@cloudflare/workers-types" />
 
-import { Agent } from "agents";
-import { getServerByName } from "partyserver";
+import { Agent, AgentNamespace, getAgentByName } from "agents";
 import { WorkerEntrypoint } from "cloudflare:workers";
 import OpenAI from "openai";
 
 interface Env {
-  TIC_TAC_TOE_AGENT: DurableObjectNamespace;
+  TIC_TAC_TOE_AGENT: AgentNamespace<Agent>;
   OPENAI_API_KEY: string;
 }
 
@@ -256,7 +255,7 @@ export class TicTacToeWorker extends WorkerEntrypoint<Env> {
         return new Response("Expected websocket", { status: 400 });
       }
 
-      const stub = await getServerByName(this.env.TIC_TAC_TOE_AGENT, "game");
+      const stub = await getAgentByName(this.env.TIC_TAC_TOE_AGENT, "game");
 
       return stub.fetch(request);
     }
