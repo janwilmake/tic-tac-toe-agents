@@ -104,7 +104,7 @@ export class TicTacToeAgent extends Agent<Env, GameState> {
   async makeAIMove(connection: any) {
     // Get AI move using chat completion
     const aiPosition = await this.getAIMoveFromChatCompletion();
-
+    console.log({ aiPosition });
     if (aiPosition === null) {
       // Fallback to random move if AI fails
       const availablePositions = this.state.board
@@ -149,15 +149,27 @@ export class TicTacToeAgent extends Agent<Env, GameState> {
   }
 
   async getAIMoveFromChatCompletion(): Promise<number | null> {
-    const boardState = this.state.board
-      .map((cell, i) => `${i}: ${cell || "empty"}`)
-      .join(", ");
+    // Format board as a visual markdown table
+    // Empty cells show their position number, taken cells show X or O
+    const formatCell = (cell: string | null, index: number) =>
+      cell || String(index);
 
-    const prompt = `You are playing Tic-Tac-Toe as O. The current board state is: [${boardState}].
-Available positions are numbered 0-8 (top-left to bottom-right, row by row).
-Analyze the board and respond with ONLY the number (0-8) of the best position to place your O.
-Consider winning moves, blocking opponent wins, and strategic positioning.
-Response format: Just the number, nothing else.`;
+    const board = this.state.board;
+    const boardTable = `
+| ${formatCell(board[0], 0)} | ${formatCell(board[1], 1)} | ${formatCell(board[2], 2)} |
+|---|---|---|
+| ${formatCell(board[3], 3)} | ${formatCell(board[4], 4)} | ${formatCell(board[5], 5)} |
+|---|---|---|
+| ${formatCell(board[6], 6)} | ${formatCell(board[7], 7)} | ${formatCell(board[8], 8)} |`.trim();
+
+    const prompt = `You are playing Tic-Tac-Toe as O. Here is the current board:
+
+${boardTable}
+
+Empty cells show their position number (0-8). X and O show taken positions.
+You are O. Pick the best empty position to place your O.
+
+Respond with ONLY a single digit (0-8) for your chosen position.`;
 
     try {
       const openai = new OpenAI({
@@ -165,7 +177,7 @@ Response format: Just the number, nothing else.`;
       });
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5.2",
         messages: [
           {
             role: "system",
@@ -174,11 +186,12 @@ Response format: Just the number, nothing else.`;
           },
           { role: "user", content: prompt },
         ],
-        max_tokens: 10,
+        max_completion_tokens: 10,
       });
 
       // Extract number from response
       const responseText = response.choices[0]?.message?.content || "";
+      console.log({ responseText });
       const match = responseText.match(/\b([0-8])\b/);
 
       if (match) {
