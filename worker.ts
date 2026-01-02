@@ -1,11 +1,11 @@
 /// <reference types="@cloudflare/workers-types" />
 
-import { Agent, AgentNamespace, getAgentByName } from "agents";
+import { Agent, getAgentByName } from "agents";
 import { WorkerEntrypoint } from "cloudflare:workers";
 import OpenAI from "openai";
 
 interface Env {
-  TIC_TAC_TOE_AGENT: AgentNamespace<Agent>;
+  TIC_TAC_TOE_AGENT: DurableObjectNamespace<Agent>;
   OPENAI_API_KEY: string;
 }
 
